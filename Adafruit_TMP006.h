@@ -30,11 +30,19 @@
 #endif
 #include <Adafruit_Sensor.h>
 
-#ifdef __AVR_ATtiny85__
+#if defined ( __AVR_ATtiny85__ )
   #include "TinyWireM.h"
   #define Wire TinyWireM
+#elif defined( CORE_TEENSY )
+	#include "i2c_t3.h"
+	#ifndef WIRECLASS
+	  #define WIRECLASS i2c_t3
+	#endif
 #else
   #include "Wire.h"
+	#ifndef WIRECLASS
+	  #define WIRECLASS TwoWire
+	#endif
 #endif
 
 // uncomment for debugging!
@@ -62,6 +70,7 @@
 class Adafruit_TMP006  {
  public:
   Adafruit_TMP006(uint8_t addr = TMP006_I2CADDR);
+  boolean begin(WIRECLASS& newWireBus, uint8_t samplerate = TMP006_CFG_16SAMPLE);  // by default go highres
   boolean begin(uint8_t samplerate = TMP006_CFG_16SAMPLE);  // by default go highres
 
   void sleep();  // Put chip into low power mode (disables temperature measurements).
@@ -76,5 +85,7 @@ class Adafruit_TMP006  {
   uint8_t _addr;
   uint16_t read16(uint8_t addr);
   void write16(uint8_t addr, uint16_t data);
+  WIRECLASS *wireBus = &Wire;
+
 };
 

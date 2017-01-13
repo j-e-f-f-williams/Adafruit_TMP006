@@ -25,8 +25,13 @@ Adafruit_TMP006::Adafruit_TMP006(uint8_t i2caddr) {
 }
 
 
+boolean Adafruit_TMP006::begin(WIRECLASS& newWireBus, uint8_t samplerate) {
+	wireBus = &newWireBus;
+	begin( samplerate );
+}
+
 boolean Adafruit_TMP006::begin(uint8_t samplerate) {
-  Wire.begin();
+  wireBus->begin();
 
   write16(TMP006_CONFIG, TMP006_CFG_MODEON | TMP006_CFG_DRDYEN | samplerate);
 
@@ -148,41 +153,41 @@ int16_t Adafruit_TMP006::readRawVoltage(void) {
 uint16_t Adafruit_TMP006::read16(uint8_t a) {
   uint16_t ret;
 
-  Wire.beginTransmission(_addr); // start transmission to device 
+  wireBus->beginTransmission(_addr); // start transmission to device 
 #if (ARDUINO >= 100)
-  Wire.write(a); // sends register address to read from
+  wireBus->write(a); // sends register address to read from
 #else
-  Wire.send(a); // sends register address to read from
+  wireBus->send(a); // sends register address to read from
 #endif
-  Wire.endTransmission(); // end transmission
+  wireBus->endTransmission(); // end transmission
   
-  Wire.beginTransmission(_addr); // start transmission to device 
-  Wire.requestFrom(_addr, (uint8_t)2);// send data n-bytes read
+  wireBus->beginTransmission(_addr); // start transmission to device 
+  wireBus->requestFrom(_addr, (uint8_t)2);// send data n-bytes read
 #if (ARDUINO >= 100)
-  ret = Wire.read(); // receive DATA
+  ret = wireBus->read(); // receive DATA
   ret <<= 8;
-  ret |= Wire.read(); // receive DATA
+  ret |= wireBus->read(); // receive DATA
 #else
-  ret = Wire.receive(); // receive DATA
+  ret = wireBus->receive(); // receive DATA
   ret <<= 8;
-  ret |= Wire.receive(); // receive DATA
+  ret |= wireBus->receive(); // receive DATA
 #endif
-  Wire.endTransmission(); // end transmission
+  wireBus->endTransmission(); // end transmission
 
   return ret;
 }
 
 void Adafruit_TMP006::write16(uint8_t a, uint16_t d) {
-  Wire.beginTransmission(_addr); // start transmission to device 
+  wireBus->beginTransmission(_addr); // start transmission to device 
 #if (ARDUINO >= 100)
-  Wire.write(a); // sends register address to read from
-  Wire.write(d>>8);  // write data
-  Wire.write(d);  // write data
+  wireBus->write(a); // sends register address to read from
+  wireBus->write(d>>8);  // write data
+  wireBus->write(d);  // write data
 #else
-  Wire.send(a); // sends register address to read from
-  Wire.send(d>>8);  // write data
-  Wire.send(d);  // write data
+  wireBus->send(a); // sends register address to read from
+  wireBus->send(d>>8);  // write data
+  wireBus->send(d);  // write data
 #endif
-  Wire.endTransmission(); // end transmission
+  wireBus->endTransmission(); // end transmission
 }
 
